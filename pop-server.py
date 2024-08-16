@@ -400,14 +400,16 @@ def unlock_and_close_mbox(mbox, name, msgs, deletions):
         try:
             mbox.seek(0, 0)
             mbox.truncate()
+            first = True
             for (i, msg) in enumerate(msgs):
                 if (i+1) not in deletions:
-                    if i > 0:
+                    if not first:
                         mbox.write(b"\n")
+                    first = False
                     mbox.write(("From " + msg[0] + "\n").encode())
                     for line in msg[2].splitlines(False):
                         line = re.sub('^>(>*From )', '\1', line)
-                    mbox.write((line + "\n").encode())
+                        mbox.write((line + "\n").encode())
         except:
             log("Failed to properly save mbox: %s" % (traceback.format_exc()))
             err = "Sorry, the mailbox could not be saved, it might be corrupt now"
